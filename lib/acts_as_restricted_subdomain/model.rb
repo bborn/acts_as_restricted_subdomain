@@ -40,7 +40,7 @@ module RestrictedSubdomain
         end
 
         def self.current
-          Thread.current.thread_variable_get('current_subdomain')
+          RequestStore.store[:current_subdomain]
         end
         
         def self.current=(other)
@@ -49,7 +49,7 @@ module RestrictedSubdomain
           else
             other
           end
-          Thread.current.thread_variable_set('current_subdomain', obj)
+            RequestStore.store[:current_subdomain] = obj
         end
         
         def self.each_subdomain(&blk)
