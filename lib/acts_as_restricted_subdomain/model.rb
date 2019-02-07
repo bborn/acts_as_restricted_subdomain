@@ -145,6 +145,8 @@ module RestrictedSubdomain
               join_args = {:delegate_table => self.subdomain_klass_delegate.table_name, :delegate_key => delegate_foreign_key, :table_name => self.table_name, :subdomain_key => "#{self.subdomain_symbol}_id", :subdomain_id => subdomain_id}
               # Using "joins" makes records readonly, which we don't want
               joins("INNER JOIN %{delegate_table} ON %{delegate_table}.%{delegate_key} = %{table_name}.#{self.subdomain_klass.aars_primary_key} AND %{delegate_table}.%{subdomain_key} = %{subdomain_id}" % join_args).readonly(false)
+            else
+              where('1 = 1')
             end
           end
         
