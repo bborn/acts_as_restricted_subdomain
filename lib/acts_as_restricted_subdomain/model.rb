@@ -141,10 +141,12 @@ module RestrictedSubdomain
             if self.subdomain_klass.current
               # Using straight sql so we can JOIN against two columns. Otherwise one must go into "WHERE", and Arel would mistakenly apply it to UPDATEs and DELETEs.
               delegate_foreign_key = reflections.with_indifferent_access[self.subdomain_symbol_delegate.to_s].foreign_key
+              delegate_foreign_type = reflections.with_indifferent_access[self.subdomain_symbol_delegate.to_s].type
+
               subdomain_id = safe_sql_current_subdomain_primary_key
-              join_args = {:delegate_table => self.subdomain_klass_delegate.table_name, :delegate_key => delegate_foreign_key, :table_name => self.table_name, :subdomain_key => "#{self.subdomain_symbol}_id", :subdomain_id => subdomain_id}
+              join_args = {:delegate_table => self.subdomain_klass_delegate.table_name, :delegate_key => delegate_foreign_key, :delegate_type => delegate_foreign_type, :table_name => self.table_name, :subdomain_key => "#{self.subdomain_symbol}_id", :subdomain_id => subdomain_id}
               # Using "joins" makes records readonly, which we don't want
-              joins("INNER JOIN %{delegate_table} ON %{delegate_table}.%{delegate_key} = %{table_name}.#{self.subdomain_klass.aars_primary_key} AND %{delegate_table}.%{subdomain_key} = %{subdomain_id}" % join_args).readonly(false)
+              joins("INNER JOIN %{delegate_table} ON %{delegate_table}.%{delegate_key} = %{table_name}.#{self.subdomain_klass.aars_primary_key} AND %{delegate_table}.%{delegate_type} = #{self.table_name.singularize.capitalize} AND %{delegate_table}.%{subdomain_key} = %{subdomain_id}" % join_args).readonly(false)
             else
               where('1 = 1')
             end
